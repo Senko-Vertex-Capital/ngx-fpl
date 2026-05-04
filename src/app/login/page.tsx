@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/landing/Navbar";
 import { signIn, auth } from "@/auth";
-import { Chrome, Facebook, Trophy, Landmark } from "lucide-react";
+import { Chrome, Trophy, Landmark } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -48,20 +48,7 @@ export default async function LoginPage() {
                 </button>
               </form>
 
-              <form
-                action={async () => {
-                  "use server";
-                  await signIn("facebook", { redirectTo: "/onboarding" });
-                }}
-              >
-                <button
-                  type="submit"
-                  className="prestige-button w-full flex items-center justify-center gap-4 text-sm"
-                >
-                  <Facebook className="w-5 h-5 fill-current" strokeWidth={3} />
-                  Authorize via Facebook
-                </button>
-              </form>
+
             </div>
 
             <p className="mt-16 text-[10px] uppercase tracking-[0.3em] text-white/20 font-black">
