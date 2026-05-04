@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     description: "Elite virtual fund management simulation for the Nigerian market.",
   },
   verification: {
-    google: "_t3A900yeOxIF13EoAQsx6xAZxgcvmESYMZplAORRTg",
+    google: "nBfNNDk3t8g5Mcvt0978oklhOlA7A1lJbA_Slkv_YQE",
   }
 };
 
@@ -41,7 +41,7 @@ export default function RootLayout({
       className={`${outfit.variable} h-full antialiased dark overflow-x-hidden`}
       suppressHydrationWarning
     >
-      <body 
+      <body
         className="min-h-full flex flex-col font-body selection:bg-pitch selection:text-purple stadium-grid overflow-x-hidden"
         suppressHydrationWarning
       >
