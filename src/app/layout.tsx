@@ -24,6 +24,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "The Fund Manager League",
     description: "Elite virtual fund management simulation for the Nigerian market.",
+  },
+  verification: {
+    google: "_t3A900yeOxIF13EoAQsx6xAZxgcvmESYMZplAORRTg",
   }
 };
 
