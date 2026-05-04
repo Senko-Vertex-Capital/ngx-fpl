@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  username      String?   @unique
+  accounts      Account[]
+  sessions      Session[]
+  portfolios    Portfolio[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Stock {
+  symbol        String          @id
+  name          String
+  currentPrice  Decimal         @db.Decimal(20, 2)
+  items         PortfolioItem[]
+  dailyPrices   DailyPrice[]
+  sector        String?
+  updatedAt     DateTime        @updatedAt
+}
+
+model Portfolio {
+  id             String           @id @default(cuid())
+  userId         String           @unique
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items          PortfolioItem[]
+  cashPercentage Decimal          @default(100) @db.Decimal(5, 2)
+  
+  // Performance Metrics (Consolidated from PerformanceSummary)
+  dailyGain      Decimal          @default(0) @db.Decimal(10, 4)
+  weeklyGain     Decimal          @default(0) @db.Decimal(10, 4)
+  monthlyGain    Decimal          @default(0) @db.Decimal(10, 4)
+  quarterlyGain  Decimal          @default(0) @db.Decimal(10, 4)
+  yearlyGain     Decimal          @default(0) @db.Decimal(10, 4)
+  
+  history        PortfolioValueHistory[]
+  weeklySnapshots WeeklyPortfolio[]
+  transactions   PortfolioAudit[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([dailyGain(sort: Desc)])
+  @@index([weeklyGain(sort: Desc)])
+  @@index([monthlyGain(sort: Desc)])
+}
+
+model PortfolioItem {
+  id          String    @id @default(cuid())
+  portfolioId String
+  stockSymbol String
+  percentage  Decimal   @db.Decimal(5, 2)
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  stock       Stock     @relation(fields: [stockSymbol], references: [symbol], onDelete: Cascade)
+
+  @@unique([portfolioId, stockSymbol])
+}
+
+model PortfolioValueHistory {
+  id          String    @id @default(cuid())
+  portfolioId String
+  date        DateTime  @db.Date
+  totalValue  Decimal   @db.Decimal(20, 2)
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, date])
+  @@index([date])
+}
+
+model WeeklyPortfolio {
+  id               String                @id @default(cuid())
+  portfolioId      String
+  weekStartingDate DateTime              @db.Date
+  cashPercentage   Decimal               @db.Decimal(5, 2)
+  items            WeeklyPortfolioItem[]
+  portfolio        Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, weekStartingDate])
+  @@index([weekStartingDate])
+}
+
+model WeeklyPortfolioItem {
+  id                String          @id @default(cuid())
+  weeklyPortfolioId String
+  stockSymbol       String
+  percentage        Decimal         @db.Decimal(5, 2)
+  openingPrice      Decimal         @db.Decimal(20, 2)
+  weeklyPortfolio   WeeklyPortfolio @relation(fields: [weeklyPortfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([weeklyPortfolioId, stockSymbol])
+}
+
+model DailyPrice {
+  id          String   @id @default(cuid())
+  stockSymbol String
+  price       Decimal  @db.Decimal(20, 2)
+  date        DateTime @db.Date
+  stock       Stock    @relation(fields: [stockSymbol], references: [symbol], onDelete: Cascade)
+
+  @@unique([stockSymbol, date])
+  @@index([date])
+}
+
+model PortfolioAudit {
+  id          String   @id @default(cuid())
+  portfolioId String
+  type        String   // e.g., "REALLOCATION", "INITIAL_DEPOSIT"
+  description String?
+  metadata    Json?    // Store details like { "from": { "MSFT": 50 }, "to": { "MSFT": 30, "AAPL": 20 } }
+  createdAt   DateTime @default(now())
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+}

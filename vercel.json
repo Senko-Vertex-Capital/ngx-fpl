@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/fetch-prices",
+      "schedule": "0 16 * * 1-5"
+    },
+    {
+      "path": "/api/cron/calculate-daily",
+      "schedule": "15 16 * * 1-5"
+    },
+    {
+      "path": "/api/cron/snapshot-portfolios",
+      "schedule": "0 7 * * 1"
+    }
+  ]
+}

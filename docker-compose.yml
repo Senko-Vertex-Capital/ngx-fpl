@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: tfml-db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tfml_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - tfml-data:/var/lib/postgresql/data
+
+volumes:
+  tfml-data:
